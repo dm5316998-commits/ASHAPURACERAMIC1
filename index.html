@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aashapura Ceramic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+body{font-family:'Poppins',Arial,sans-serif;margin:0;background:linear-gradient(to right,#f0f4f8,#e2e8f0);}
+header{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f97316,#facc15);color:#fff;padding:22px;font-size:28px;font-weight:700;letter-spacing:1px;text-shadow:1px 1px 3px #0003;border-bottom:4px solid #d97706;}
+nav{display:flex;background:#1e293b;box-shadow:0 4px 6px rgba(0,0,0,.2);}
+nav button{flex:1;padding:14px;border:none;background:none;color:#fff;font-size:16px;cursor:pointer;font-weight:600;transition:.3s;}
+nav button:hover{background:#3b82f6;color:#fff;}
+section{display:none;padding:20px;animation:fadeIn 0.5s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.card{background:#fff;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 8px 20px rgba(0,0,0,.1);transition:.3s;}
+.card:hover{box-shadow:0 12px 25px rgba(0,0,0,.15);}
+input,button,select{width:100%;padding:12px;margin:6px 0;font-size:15px;border-radius:8px;border:1px solid #ccc;}
+input:focus,select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 5px #3b82f6;}
+button{background:#3b82f6;color:#fff;border:none;font-weight:600;cursor:pointer;transition:.3s;}
+button:hover{background:#2563eb;}
+table{width:100%;border-collapse:collapse;margin-top:15px;box-shadow:0 4px 10px rgba(0,0,0,.05);}
+th,td{border:1px solid #cbd5e1;padding:10px;text-align:center;}
+th{background:#3b82f6;color:#fff;text-transform:uppercase;font-weight:600;}
+tr:nth-child(even){background:#f1f5f9;}
+.actionBtn{padding:5px 10px;font-size:13px;margin:2px;background:#ef4444;border:none;color:#fff;cursor:pointer;border-radius:5px;transition:.3s;}
+.actionBtn:hover{background:#dc2626;}
+.total{text-align:right;font-size:18px;font-weight:bold;margin-top:12px;color:#111827;}
+#printArea{display:none;font-family:'Poppins',Arial,sans-serif;padding:15px;}
+@media print{body *{visibility:hidden;}#printArea,#printArea *{visibility:visible;}#printArea{display:block;position:absolute;left:0;top:0;width:100%;}nav,button,input,select{display:none!important;}@page{margin:10mm;}}
+</style>
+</head>
+
+<body>
+
+<header>
+Aashapura Ceramic
+</header>
+
+<nav>
+<button onclick="show('sales')">Sales</button>
+<button onclick="show('purchase')">Purchase</button>
+<button onclick="show('stock')">Stock</button>
+<button onclick="show('history')">Bills</button>
+<button onclick="show('report')">Sales Report</button>
+</nav>
+
+<!-- SALES -->
+<section id="sales">
+<div class="card">
+<h3>Customer Details</h3>
+<input id="cname" placeholder="Customer Name">
+<input id="cmobile" placeholder="Mobile Number (91XXXXXXXXXX)">
+</div>
+
+<div class="card">
+<h3>Add Item</h3>
+<input id="sitem" placeholder="Item Name">
+<input id="sqty" type="number" placeholder="Quantity">
+<input id="sprice" type="number" placeholder="Rate">
+<button onclick="addItem()">Add Item</button>
+
+<table id="saleTable">
+<tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
+</table>
+
+<p class="total">Total ₹ <span id="saleTotal">0</span></p>
+
+<button onclick="saveBill()">Save Bill</button>
+<button onclick="printBill()">Print Bill</button>
+</div>
+</section>
+
+<!-- PURCHASE -->
+<section id="purchase">
+<div class="card">
+<h3>Purchase</h3>
+<input id="pitem" placeholder="Item Name">
+<input id="pqty" type="number" placeholder="Quantity">
+<input id="pcost" type="number" placeholder="Cost per unit">
+<button onclick="addPurchase()">Save Purchase</button>
+</div>
+</section>
+
+<!-- STOCK -->
+<section id="stock">
+<div class="card">
+<h3>Stock</h3>
+<table id="stockTable">
+<tr><th>Item</th><th>Qty</th><th>Cost</th><th>Action</th></tr>
+</table>
+</div>
+</section>
+
+<!-- HISTORY -->
+<section id="history">
+<div class="card">
+<h3>Saved Bills</h3>
+<table id="historyTable">
+<tr><th>Date</th><th>Customer</th><th>Total</th><th>Action</th></tr>
+</table>
+</div>
+</section>
+
+<!-- SALES REPORT -->
+<section id="report">
+<div class="card">
+<h3>Sales Report</h3>
+<label>Filter by Date:</label>
+<input type="date" id="reportDate">
+<button onclick="generateReport()">Show Report</button>
+
+<table id="reportTable">
+<tr><th>Date</th><th>Customer</th><th>Total</th></tr>
+</table>
+<p class="total">Total Sales: ₹ <span id="reportTotal">0</span></p>
+</div>
+</section>
+
+<!-- PRINT BILL -->
+<div id="printArea">
+<h2 style="text-align:center">Aashapura Ceramic</h2>
+<p style="text-align:center">Tiles & Sanitary Store</p>
+<hr>
+<p><b>Customer:</b> <span id="pbCustomer"></span></p>
+<p><b>Mobile:</b> <span id="pbMobile"></span></p>
+<p><b>Date:</b> <span id="pbDate"></span></p>
+
+<table>
+<tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
+<tbody id="pbItems"></tbody>
+</table>
+
+<h3 style="text-align:right">Total ₹ <span id="pbTotal"></span></h3>
+</div>
+
+<script>
+let saleItems=[];
+let stock=JSON.parse(localStorage.getItem("stock"))||{};
+let bills=JSON.parse(localStorage.getItem("bills"))||[];
+let editIndex=null;
+
+function show(id){
+ document.querySelectorAll("section").forEach(s=>s.style.display="none");
+ document.getElementById(id).style.display="block";
+}
+show("sales");
+
+// Helper function for date format dd-mm-yyyy
+function formatDate(d){
+ let date = new Date(d);
+ let dd = String(date.getDate()).padStart(2,'0');
+ let mm = String(date.getMonth()+1).padStart(2,'0');
+ let yyyy = date.getFullYear();
+ return `${dd}-${mm}-${yyyy}`;
+}
+
+/* SALES */
+function addItem(){
+ let i=sitem.value,q=+sqty.value,p=+sprice.value;
+ if(!i||q<=0||p<=0)return alert("Invalid data");
+ saleItems.push({i,q,p,t:q*p});
+ saleTable.innerHTML+=`<tr><td>${i}</td><td>${q}</td><td>${p}</td><td>${q*p}</td></tr>`;
+ updateTotal();
+ sitem.value=sqty.value=sprice.value="";
+}
+
+function updateTotal(){
+ saleTotal.innerText=saleItems.reduce((a,b)=>a+b.t,0);
+}
+
+function saveBill(){
+ if(!cname.value||saleItems.length==0)return;
+ let today = new Date();
+ let bill={date:formatDate(today), customer:cname.value, mobile:cmobile.value, items:saleItems, total:saleTotal.innerText};
+ if(editIndex!=null){ bills[editIndex]=bill; editIndex=null;}
+ else bills.push(bill);
+ localStorage.setItem("bills", JSON.stringify(bills));
+ alert("Bill Saved");
+ location.reload();
+}
+
+/* PURCHASE */
+function addPurchase(){
+ let i=pitem.value,q=+pqty.value,c=+pcost.value;
+ if(!i||q<=0||c<=0)return alert("Invalid purchase");
+ if(stock[i]){
+   stock[i].qty += q;
+   stock[i].cost = c;
+ } else { stock[i]={qty:q,cost:c}; }
+ localStorage.setItem("stock",JSON.stringify(stock));
+ loadStock();
+ pitem.value=pqty.value=pcost.value="";
+ alert("Purchase Saved");
+}
+
+/* STOCK */
+function loadStock(){
+ stockTable.innerHTML="<tr><th>Item</th><th>Qty</th><th>Cost</th><th>Action</th></tr>";
+ for(let i in stock){
+  stockTable.innerHTML+=`<tr><td>${i}</td><td>${stock[i].qty}</td><td>${stock[i].cost}</td><td>
+   <button class="actionBtn" onclick="editStock('${i}')">Edit</button>
+   <button class="actionBtn" onclick="deleteStock('${i}')">Delete</button>
+   </td></tr>`;
+ }
+}
+function editStock(item){
+ let newQty = prompt("Enter new quantity", stock[item].qty);
+ let newCost = prompt("Enter new cost", stock[item].cost);
+ if(newQty!==null && newCost!==null){
+   stock[item].qty = parseInt(newQty);
+   stock[item].cost = parseFloat(newCost);
+   localStorage.setItem("stock",JSON.stringify(stock));
+   loadStock();
+ }
+}
+function deleteStock(item){
+ if(confirm("Are you sure to delete this item?")){
+   delete stock[item];
+   localStorage.setItem("stock",JSON.stringify(stock));
+   loadStock();
+ }
+}
+
+/* HISTORY */
+function loadHistory(){
+ historyTable.innerHTML="<tr><th>Date</th><th>Customer</th><th>Total</th><th>Action</th></tr>";
+ bills.forEach((b,i)=>{
+  historyTable.innerHTML+=`<tr><td>${b.date}</td><td>${b.customer}</td><td>₹ ${b.total}</td><td><button onclick="editBill(${i})">Edit</button></td></tr>`;
+ });
+}
+function editBill(i){
+ let b=bills[i];
+ cname.value=b.customer; cmobile.value=b.mobile;
+ saleItems=b.items;
+ saleTable.innerHTML="<tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>";
+ saleItems.forEach(it=>{ saleTable.innerHTML+=`<tr><td>${it.i}</td><td>${it.q}</td><td>${it.p}</td><td>${it.t}</td></tr>`; });
+ saleTotal.innerText=b.total;
+ editIndex=i;
+ show("sales");
+}
+
+/* PRINT BILL */
+function printBill(){
+ pbCustomer.innerText=cname.value;
+ pbMobile.innerText=cmobile.value;
+ pbDate.innerText=formatDate(new Date());
+ pbItems.innerHTML="";
+ saleItems.forEach(it=>{ pbItems.innerHTML+=`<tr><td>${it.i}</td><td>${it.q}</td><td>${it.p}</td><td>${it.t}</td></tr>`; });
+ pbTotal.innerText=saleTotal.innerText;
+ window.print();
+}
+
+/* SALES REPORT */
+function generateReport(){
+ let date=reportDate.value;
+ let total=0;
+ reportTable.innerHTML="<tr><th>Date</th><th>Customer</th><th>Total</th></tr>";
+ bills.forEach(b=>{
+   if(!date || b.date===formatDate(date)){
+     reportTable.innerHTML+=`<tr><td>${b.date}</td><td>${b.customer}</td><td>₹${b.total}</td></tr>`;
+     total+=parseFloat(b.total);
+   }
+ });
+ reportTotal.innerText=total;
+}
+
+/* INITIAL LOAD */
+loadStock();
+loadHistory();
+</script>
+
+</body>
+</html>
